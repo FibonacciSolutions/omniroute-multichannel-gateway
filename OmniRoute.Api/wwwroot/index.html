@@ -1,0 +1,414 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UpCode Omnichannel Gateway - NMC Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 2rem;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .header h1 {
+                margin: 0;
+                font-size: 1.5rem;
+                color: #0f172a;
+            }
+
+            .header p {
+                margin: 0.25rem 0 0;
+                color: #64748b;
+                font-size: 0.9rem;
+            }
+
+        .status-badge {
+            background-color: #dcfce7;
+            color: #166534;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+            .form-group label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+                color: #334155;
+            }
+
+        textarea, select, input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background-color: #f8fafc;
+        }
+
+            textarea:focus, select:focus {
+                outline: none;
+                border-color: #2563eb;
+                background-color: #fff;
+            }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .btn-send {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+        }
+
+            .btn-send:hover {
+                background-color: #1d4ed8;
+            }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #f8fafc;
+            padding: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+            color: #475569;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .channel-pill {
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .channel-sms {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .channel-whatsapp {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .channel-viber {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card header">
+            <div>
+                <h1>UpCode Omnichannel Gateway</h1>
+                <p>Nepal Multipurpose Cooperative (NMC) Portal Demo</p>
+            </div>
+            <span class="status-badge" id="systemStatus">System Online</span>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0; font-size: 1.2rem; color: #1e293b;">Dispatch SMS & Messaging Broadcast</h2>
+            <div id="alertBox" class="alert"></div>
+
+            <div class="form-group">
+                <label>Select Messaging Route / Gateway Channel</label>
+                <select id="channelSelect">
+                    <option value="SMS">📱 Standard SMS Route</option>
+                    <option value="WhatsApp">🟢 WhatsApp Business API</option>
+                    <option value="Viber">🟣 Viber Business Messaging</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Upload Contacts File (.csv or .txt)</label>
+                <div style="border: 2px dashed #cbd5e1; border-radius: 8px; padding: 1rem; text-align: center; background: #f8fafc; cursor: pointer;" onclick="document.getElementById('fileInput').click()">
+                    <span style="font-size: 1.2rem;">📁</span>
+                    <span style="font-size: 0.9rem; color: #475569; font-weight: 500; margin-left: 0.5rem;">Click to select file (.csv, .txt)</span>
+                    <span id="fileNameDisplay" style="display: block; margin-top: 0.25rem; font-size: 0.85rem; color: #2563eb; font-weight: 600;"></span>
+                    <input type="file" id="fileInput" accept=".txt,.csv" onchange="handleFileUpload(event)" style="display: none;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Recipient Numbers (Comma-separated or line-by-line)</label>
+                <textarea id="recipientsInput" placeholder="e.g. 9801234567, 9841234567"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label>Message Body Text</label>
+                    <span id="charCounter" style="font-size: 0.8rem; color: #64748b; font-weight: 600;">0 chars</span>
+                </div>
+                <textarea id="messageTextInput" placeholder="Type notification message..." oninput="updateCharCount()"></textarea>
+            </div>
+
+            <button class="btn-send" onclick="sendBroadcast()" id="sendBtn">🚀 Send Broadcast</button>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 1.2rem;">SMS Dispatch History & Logs</h2>
+                <button onclick="loadLogs()" style="background: none; border: none; color: #2563eb; cursor: pointer; font-weight: 600;">🔄 Refresh Logs</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Recipient</th>
+                            <th>Message Body</th>
+                            <th>Channel</th>
+                            <th>Status</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody">
+                        <tr><td colspan="5" style="text-align: center;">Loading dispatch logs...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = "http://omniroute-api.runasp.net";
+        const API_KEY = "upcode_live_254b688444037402cc673fd519c28e3a";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadLogs();
+        });
+
+        function showAlert(msg, type) {
+            const box = document.getElementById("alertBox");
+            box.className = `alert alert-${type}`;
+            box.innerText = msg;
+            box.style.display = "block";
+            setTimeout(() => { box.style.display = "none"; }, 5000);
+        }
+
+        function updateCharCount() {
+            const text = document.getElementById("messageTextInput").value;
+            const len = text.length;
+            const units = len === 0 ? 0 : Math.ceil(len / 160);
+            document.getElementById("charCounter").innerText = `${len} chars (${units} SMS unit${units > 1 ? 's' : ''})`;
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById("fileNameDisplay").innerText = `Loaded File: ${file.name}`;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const content = e.target.result;
+                const numbers = content.split(/[\r\n,]+/).map(n => n.trim()).filter(n => n.length > 0);
+                document.getElementById("recipientsInput").value = numbers.join(", ");
+            };
+            reader.readAsText(file);
+        }
+
+        async function sendBroadcast() {
+            const recipientsText = document.getElementById("recipientsInput").value;
+            const messageText = document.getElementById("messageTextInput").value;
+            const selectedChannel = document.getElementById("channelSelect").value;
+            const sendBtn = document.getElementById("sendBtn");
+
+            const recipients = recipientsText.split(/[\r\n,]+/).map(n => n.trim()).filter(n => n.length > 0);
+
+            if (recipients.length === 0) {
+                showAlert("Please enter or upload recipient numbers.", "error");
+                return;
+            }
+
+            if (!messageText.trim()) {
+                showAlert("Please enter message body text.", "error");
+                return;
+            }
+
+            sendBtn.disabled = true;
+            sendBtn.innerText = "Dispatching Messages...";
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/v1/Messages/batch-send`, {
+                    method: "POST",
+                    headers: {
+                        "X-API-KEY": API_KEY,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        recipients: recipients,
+                        messageText: messageText,
+                        channel: selectedChannel
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert(`Successfully queued broadcast via ${selectedChannel}!`, "success");
+                    document.getElementById("recipientsInput").value = "";
+                    document.getElementById("messageTextInput").value = "";
+                    document.getElementById("fileInput").value = "";
+                    document.getElementById("fileNameDisplay").innerText = "";
+                    updateCharCount();
+                    loadLogs();
+                } else {
+                    showAlert(result.error || "Failed to send messages.", "error");
+                }
+            } catch (err) {
+                showAlert(`Network/Server Error: ${err.message}`, "error");
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerText = "🚀 Send Broadcast";
+            }
+        }
+
+        async function loadLogs() {
+            const tbody = document.getElementById("logsTableBody");
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #2563eb;">Fetching logs from server...</td></tr>`;
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/v1/Messages`, {
+                    method: "GET",
+                    headers: {
+                        "X-API-KEY": API_KEY,
+                        "Accept": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    const errText = await response.text();
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #dc2626; font-weight: 600;">Server Error (${response.status}): ${errText || response.statusText}</td></tr>`;
+                    return;
+                }
+
+                const result = await response.json();
+                let logs = [];
+                if (Array.isArray(result)) {
+                    logs = result;
+                } else if (result.data && Array.isArray(result.data)) {
+                    logs = result.data;
+                } else if (result.items && Array.isArray(result.items)) {
+                    logs = result.items;
+                }
+
+                if (logs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748b;">No dispatch history found in database. (System Ready)</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = logs.map(log => {
+                    const channelName = log.channel || log.dispatchedChannel || log.gateway || 'SMS';
+                    let pillClass = "channel-sms";
+                    if (channelName.toUpperCase() === "WHATSAPP") pillClass = "channel-whatsapp";
+                    if (channelName.toUpperCase() === "VIBER") pillClass, "channel-viber";
+
+                    const recipientVal = log.destinationNumber || log.phoneNumber || log.recipient || (log.recipients ? log.recipients[0] : 'N/A');
+                    const messageVal = log.messageText || log.body || log.requestedParametersJson || log.message || 'N/A';
+                    const statusVal = log.status || log.deliveryStatus || 'Sent';
+
+                    const rawDate = log.createdAt || log.timestamp || log.sentAt || Date.now();
+                    const formattedDate = new Date(rawDate).toLocaleTimeString();
+
+                    return `
+                        <tr>
+                            <td><strong>${recipientVal}</strong></td>
+                            <td>${messageVal}</td>
+                            <td><span class="channel-pill ${pillClass}">${channelName}</span></td>
+                            <td><span style="color: #166534; font-weight: 600;">${statusVal}</span></td>
+                            <td>${formattedDate}</td>
+                        </tr>
+                    `;
+                }).join("");
+
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #dc2626; font-weight: 600;">Network/CORS Exception: ${err.message}</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>

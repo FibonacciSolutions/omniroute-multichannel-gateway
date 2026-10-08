@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="OmniRoute.Api/OmniRoute.Api.csproj" />
+  <Project Path="OmniRoute.Core/OmniRoute.Core.csproj" />
+  <Project Path="OmniRoute.Infrastructure/OmniRoute.Infrastructure.csproj" />
+</Solution>
